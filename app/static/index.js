@@ -42,19 +42,30 @@ const showNoActiveListSelectedMsg = () => {
     }
 }
 
-const createTodo = async (listId, todoDesc) => {
+/**
+ * 
+ * @param {number} listId 
+ * @param {string} todoDescription 
+ * @returns {Object} - an object containing a representation of the todo after it has been created on the backend
+ */
+const createTodo = async (listId, todoDescription) => {
+    // we create an empty var that MAY be filled with the backend response
     let postJsonResponse;
     try {
+        // this is the call to our backend
         const APICallRes = await fetch("/todos", {
             method: "POST",
+            // we format the list id and the todo description into a JSON string to be ingested by the backend
             body: JSON.stringify({
-              "description": todoDesc, 
+              "description": todoDescription, 
               "list_id": listId
             }),
+            // we specify to the backend that we're sending JSON
             headers: {
                 "Content-Type": "application/json",
             }
         });
+        // after we have received the response from the backend API, we turn it into a usable JSON
         postJsonResponse = await APICallRes.json();
     } catch (error) {
         console.error(error);
@@ -149,18 +160,18 @@ const handleTodoCheckboxChange = async e => {
       if (APICall.status != 200) {
         throw "unable to update todo's completed state";
       }
-      const todoDesc = document.querySelector(`span[data-id="span_${id}"]`);
-      const listId = todoDesc.parentElement.parentElement.id;
+      const todoDescription = document.querySelector(`span[data-id="span_${id}"]`);
+      const listId = todoDescription.parentElement.parentElement.id;
       const parentListCheckbox = document.querySelector(`input[data-id="listCheckbox_${extractIdFromInput(listId)}"]`);
       if (completedState) {
         try {
             await markListAsCompletedIfIs(listId, parentListCheckbox);
-            todoDesc.classList.add("strikedThrough");
+            todoDescription.classList.add("strikedThrough");
         } catch (error) {
             throw "unable to get todos associated to list";
         }
       } else {
-        todoDesc.classList.remove("strikedThrough");  
+        todoDescription.classList.remove("strikedThrough");  
         parentListCheckbox.checked = false;
       }
     } catch (error) {
@@ -232,7 +243,7 @@ window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("create_todo_btn").disabled = true;
     }
 
-    const descInput = document.getElementById('descriptionInput');
+    const todoDescriptionInput = document.getElementById('descriptionInput');
     const todoCheckboxes = document.querySelectorAll(".todoCheckbox");
     const todoDelBtns = document.querySelectorAll(".todoButton");
     const listCheckboxes = document.querySelectorAll(".listCheckbox");
@@ -247,16 +258,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // listening to create todo form submit event
     document.getElementById("todo_form").onsubmit = async function (e) {
+        // we tell the page not to reload on submit
         e.preventDefault();
-        const desc = descInput.value;
+        // we get the todo description value from an input field we saved in a JS var when the page was loaded
+        const description = todoDescriptionInput.value;
+        // we call our createTodo method, which is async and should return our formatted todo from the backend
         let postJsonResponse = await createTodo(
+            // we extract the list id to associate it to a todo
             extractIdFromInput(document.querySelector(".todos").id),
-            desc,
-            showError
+            description
         );
+        // if we do get a response from the backend we update the display by inserting the new todo in the DOM
         if (postJsonResponse) {
             updateDisplayWithNewTodo(postJsonResponse);
-        } else {
+        } else { // if not we show an error
             showError();
         }
     } 
