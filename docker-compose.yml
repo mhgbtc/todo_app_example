@@ -16,7 +16,6 @@ services:
     ports:
       - 5432:5432
 
-
   pgadmin:
     image: dpage/pgadmin4:6.11
     restart: unless-stopped
