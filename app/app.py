@@ -1,7 +1,14 @@
-import sys
-from bootstrap import app, db
 from flask import abort, jsonify, redirect, render_template, request, url_for
-from models import TodosList, Todo
+from flask_migrate import Migrate
+import sys
+
+from init import create_app
+from models import db, TodosList, Todo
+
+app = create_app()
+# bootstrap database migrate commands
+db.init_app(app)
+migrate = Migrate(app, db)
 
 
 # @app.route is a decorator that takes an input function index()
