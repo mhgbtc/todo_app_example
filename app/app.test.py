@@ -32,7 +32,6 @@ class AppTest(unittest.TestCase):
         """Reset logic:
            - reset DB after each test is run
         """
-        self.app.app_context().push()
         engine = create_engine("postgresql://usr:pwd@pgsql-test:5433/todos")
         connection = engine.raw_connection()
         cursor = connection.cursor()
@@ -42,7 +41,7 @@ class AppTest(unittest.TestCase):
         cursor.close()
 
     def test_get_unknown_url_returns_formatted_404(self):
-        """Given a web user, when he hits /api/unknown with a get request,
+        """Given a web user, when he hits /api/unknown with a GET request,
         then the response should have a status code of 404
         and the response body should contain the expected payload"""
         res = self.client().get('/api/unknown')
@@ -60,6 +59,10 @@ class AppTest(unittest.TestCase):
         self.assertEqual(res.json["data"], None)
         self.assertTrue(res.json["success"])
 
+
+        # res = self.client().post("/api/questions", json={
+        #     "key": "value"
+        # })
 
 # Make the tests executable
 if __name__ == "__main__":
